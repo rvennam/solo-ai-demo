@@ -161,6 +161,16 @@ Verify that you get back the fetched URL content.
 
 ![alt text](static-mcp.png)
 
+agentgateway proxy has a UI, but it's read-only, as kgateway control plane configures agentgateway over xds based on the Gateway API + traffic policy resources. 
+
+```
+kubectl port-forward deployment/agentgateway 15000
+```
+
+http://localhost:15000/ui/
+
+![alt text](agentgateway-ui.png)
+
 ## Agent Connectivity
 
 Connect to an agent. With agentgateway, you can route to agent-to-agent (A2A) servers and expose their tools securely.
