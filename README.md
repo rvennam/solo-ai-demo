@@ -161,7 +161,7 @@ npx modelcontextprotocol/inspector#0.16.2
 From the MCP Inspector menu, connect to your agentgateway address as follows:
 
 - Transport Type: Select Streamable HTTP.
-- URL: Enter the agentgateway address, port, and the /mcp path. Use http://localhost:8080/mcp.
+- URL: Enter the agentgateway address, port, and the /mcp path. Use http://localhost:8080/mcp
 - Click Connect.
 - From the menu bar, click the Tools tab. Then from the Tools pane, click List Tools and select the fetch tool.
 - From the fetch pane, in the url field, enter a website URL, such as https://lipsum.com/, and click Run Tool.
@@ -251,7 +251,55 @@ Test using MCP Inspector. You should now see tools from both MCP Servers
 ![alt text](mcp-multiplex.png)
 
 
-## AgentGateway UI + Metrics
+### Remote MCP Server
+
+Next, lets try a remote mcp server. I found this demo server https://demo-deay.mcp.cloudflare.com/sse. Let's use it
+
+Lets first update our Backend
+
+```
+kubectl delete Backend mcp-backend
+```
+
+and apply the new Backend
+```
+kubectl apply -f- <<EOF
+apiVersion: gateway.kgateway.dev/v1alpha1
+kind: Backend
+metadata:
+  name: mcp-backend
+spec:
+  type: MCP
+  mcp:
+    targets:
+    - name: mcp-remote-target
+      static:
+        host: demo-day.mcp.cloudflare.com
+        port: 443
+        protocol: SSE
+---
+apiVersion: gateway.networking.k8s.io/v1alpha3	
+kind: BackendTLSPolicy
+metadata:
+  name: mcp-backend-tls
+  namespace: default
+spec:
+  targetRefs:
+    - name: mcp-backend
+      kind: Backend
+      group: gateway.kgateway.dev
+  validation:
+    hostname: demo-day.mcp.cloudflare.com
+    wellKnownCACertificates: System
+EOF
+```
+
+Test using MCP Inspector. 
+
+![alt text](remote-mcp.png)
+
+
+### AgentGateway UI + Metrics
 
 agentgateway proxy has a UI, but it's read-only, as kgateway control plane configures agentgateway over xds based on the Gateway API + traffic policy resources. 
 
