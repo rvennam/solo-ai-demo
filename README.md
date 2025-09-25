@@ -134,7 +134,7 @@ spec:
     - backendRefs:
       - name: mcp-backend
         group: gateway.kgateway.dev
-        kind: Backend   
+        kind: Backend    
 EOF
 ```
 
@@ -160,6 +160,87 @@ From the MCP Inspector menu, connect to your agentgateway address as follows:
 Verify that you get back the fetched URL content.
 
 ![alt text](static-mcp.png)
+
+### MCP Multiplexing
+Federate tools of multiple MCP servers on the agentgateway by using MCP multiplexing.
+
+Deploy a second MCP Server:
+
+```bash
+kubectl apply -f- <<EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-server-everything
+  labels:
+    app: mcp-server-everything
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mcp-server-everything
+  template:
+    metadata:
+      labels:
+        app: mcp-server-everything
+    spec:
+      containers:
+        - name: mcp-server-everything
+          image: node:20-alpine
+          command: ["npx"]
+          args: ["-y", "@modelcontextprotocol/server-everything", "streamableHttp"]
+          ports:
+            - containerPort: 3001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-server-everything
+  labels:
+    app: mcp-server-everything
+spec:
+  selector:
+    app: mcp-server-everything
+  ports:
+    - protocol: TCP
+      port: 3001
+      targetPort: 3001
+      appProtocol: kgateway.dev/mcp
+  type: ClusterIP
+EOF
+```
+
+
+Update the previous Backend to now include both targets
+
+```bash
+kubectl apply -f- <<EOF
+apiVersion: gateway.kgateway.dev/v1alpha1
+kind: Backend
+metadata:
+  name: mcp-backend
+spec:
+  type: MCP
+  mcp:
+    targets:
+    - name: mcp-target
+      static:
+        host: mcp-website-fetcher.default.svc.cluster.local
+        port: 80
+        protocol: SSE   
+    - name: mcp-server-everything
+      selector:
+          service:
+            matchLabels:
+                app: mcp-server-everything
+EOF
+```
+
+Test using MCP Inspector. You should now see tools from both MCP Servers
+
+
+![alt text](mcp-multiplex.png)
+
 
 agentgateway proxy has a UI, but it's read-only, as kgateway control plane configures agentgateway over xds based on the Gateway API + traffic policy resources. 
 
