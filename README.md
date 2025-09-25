@@ -131,10 +131,19 @@ spec:
   parentRefs:
   - name: agentgateway
   rules:
-    - backendRefs:
+    - filters:
+        - type: CORS
+          cors:
+            allowHeaders:
+              - "*"               
+            allowMethods:
+              - "*"              
+            allowOrigins:
+              - "http://localhost:15000"
+      backendRefs:
       - name: mcp-backend
         group: gateway.kgateway.dev
-        kind: Backend    
+        kind: Backend  
 EOF
 ```
 
@@ -242,6 +251,8 @@ Test using MCP Inspector. You should now see tools from both MCP Servers
 ![alt text](mcp-multiplex.png)
 
 
+## AgentGateway UI
+
 agentgateway proxy has a UI, but it's read-only, as kgateway control plane configures agentgateway over xds based on the Gateway API + traffic policy resources. 
 
 ```
@@ -325,7 +336,16 @@ spec:
     - name: agentgateway-a2a
       namespace: default
   rules:
-    - backendRefs:
+    - filters:
+        - type: CORS
+          cors:
+            allowHeaders:
+              - "*"               
+            allowMethods:
+              - "*"              
+            allowOrigins:
+              - "http://localhost:15000"
+      backendRefs:
         - name: a2a-agent
           port: 9090
 EOF
