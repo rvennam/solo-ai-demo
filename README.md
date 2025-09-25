@@ -251,7 +251,7 @@ Test using MCP Inspector. You should now see tools from both MCP Servers
 ![alt text](mcp-multiplex.png)
 
 
-## AgentGateway UI
+## AgentGateway UI + Metrics
 
 agentgateway proxy has a UI, but it's read-only, as kgateway control plane configures agentgateway over xds based on the Gateway API + traffic policy resources. 
 
@@ -262,6 +262,13 @@ kubectl port-forward deployment/agentgateway 15000
 http://localhost:15000/ui/
 
 ![alt text](agentgateway-ui.png)
+
+There are also metrics:
+
+```
+kubectl port-forward deployment/agentgateway 15020
+```
+![alt text](metrics.png)
 
 ## Agent Connectivity
 
