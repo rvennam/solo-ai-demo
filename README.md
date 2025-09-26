@@ -35,11 +35,11 @@ kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.27/samp
 #### Install kgateway
 Deploy the kgateway CRDs by using Helm.
 ```
-helm upgrade -i --create-namespace --namespace kgateway-system --version v2.1.0-main \
+helm upgrade -i --create-namespace --namespace kgateway-system --version v2.1.0-rc.1 \
 kgateway-crds oci://cr.kgateway.dev/kgateway-dev/charts/kgateway-crds \
 --set controller.image.pullPolicy=Always
 
-helm upgrade -i --namespace kgateway-system --version v2.1.0-main kgateway oci://cr.kgateway.dev/kgateway-dev/charts/kgateway \
+helm upgrade -i --namespace kgateway-system --version v2.1.0-rc.1 kgateway oci://cr.kgateway.dev/kgateway-dev/charts/kgateway \
   --set agentgateway.enabled=true  \
   --set controller.image.pullPolicy=Always
 ```
