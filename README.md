@@ -2,17 +2,17 @@
 
 ## Install Everything
 
-### Create k3s cluster
+#### Create k3s cluster
 ```
 k3d cluster create solo-demo --api-port 6550 -p '9080:80@loadbalancer' -p '9443:443@loadbalancer' --agents 2 --k3s-arg '--disable=traefik@server:*'
 ```
 
-### Gateway API CRDs
+#### Gateway API CRDs
 ```
 kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/experimental-install.yaml
 ```
 
-### Install Istio
+#### Install Istio
 
 Install Istio using istioctl:
 ```
@@ -26,13 +26,13 @@ Enable it for default ns:
 kubectl label ns default istio.io/dataplane-mode=ambient
 ```
 
-### Install Prometheus and Kiali:
+#### Install Prometheus and Kiali:
 ```
 kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.27/samples/addons/prometheus.yaml
 kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.27/samples/addons/kiali.yaml
 ```
 
-### Install kgateway
+#### Install kgateway
 Deploy the kgateway CRDs by using Helm.
 ```
 helm upgrade -i --create-namespace --namespace kgateway-system --version v2.1.0-main \

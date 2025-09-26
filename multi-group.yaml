@@ -1,0 +1,88 @@
+# Group 1: MCP backend for website-fetcher
+apiVersion: gateway.kgateway.dev/v1alpha1
+kind: Backend
+metadata:
+  name: mcp-backend-group1
+spec:
+  type: MCP
+  mcp:
+    targets:
+    - name: mcp-target
+      static:
+        host: mcp-website-fetcher.default.svc.cluster.local
+        port: 80
+        protocol: SSE   
+---
+# Group 2: MCP backend for website-fetcher and everything (Multi-Plexing)
+apiVersion: gateway.kgateway.dev/v1alpha1
+kind: Backend
+metadata:
+  name: mcp-backend-group2
+spec:
+  type: MCP
+  mcp:
+    targets:
+    - name: mcp-target
+      static:
+        host: mcp-website-fetcher.default.svc.cluster.local
+        port: 80
+        protocol: SSE   
+    - name: mcp-server-everything
+      selector:
+          service:
+            matchLabels:
+                app: mcp-server-everything
+---
+# /mcp-group1 route to group1 backend
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: mcp-group1
+spec:
+  parentRefs:
+  - name: agentgateway
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /mcp-group1
+      filters:
+        - type: CORS
+          cors:
+            allowHeaders:
+              - "*"               
+            allowMethods:            
+              - "*"              
+            allowOrigins:
+              - "http://localhost:15000"
+      backendRefs:
+      - name: mcp-backend-group1
+        group: gateway.kgateway.dev
+        kind: Backend  
+---
+# /mcp-group2 route to group2 backend
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: mcp-group2
+spec:
+  parentRefs:
+  - name: agentgateway
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /mcp-group2
+      filters:
+        - type: CORS
+          cors:
+            allowHeaders:
+              - "*"               
+            allowMethods:            
+              - "*"              
+            allowOrigins:
+              - "http://localhost:15000"
+      backendRefs:
+      - name: mcp-backend-group2
+        group: gateway.kgateway.dev
+        kind: Backend  
